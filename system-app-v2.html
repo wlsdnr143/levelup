@@ -1,0 +1,1117 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="SYSTEM">
+<title>SYSTEM — 인생 레벨업</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #080C10;
+  --bg2: #0D1117;
+  --bg3: #131920;
+  --border: rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.12);
+  --text: #E8EDF2;
+  --text2: #7A8A9A;
+  --text3: #3D4F5E;
+  --accent: #00D4FF;
+  --accent2: #0099BB;
+  --gold: #FFB800;
+  --red: #FF4455;
+  --green: #00E676;
+  --purple: #9B6DFF;
+  --rank-e: #7A8A9A;
+  --rank-d: #4CAF50;
+  --rank-c: #2196F3;
+  --rank-b: #9C27B0;
+  --rank-a: #FF9800;
+  --rank-s: #FFB800;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+body { background: var(--bg); color: var(--text); font-family: 'Noto Sans KR', sans-serif; min-height: 100vh; overflow-x: hidden; padding-bottom: 80px; }
+body::before { content: ''; position: fixed; inset: 0; background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px); pointer-events: none; z-index: 1000; }
+
+.topbar { position: fixed; top: 0; left: 0; right: 0; height: 56px; background: rgba(8,12,16,0.95); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 20px; z-index: 100; backdrop-filter: blur(10px); }
+.topbar-logo { font-family: 'Rajdhani', sans-serif; font-size: 20px; font-weight: 700; letter-spacing: 4px; color: var(--accent); text-shadow: 0 0 20px rgba(0,212,255,0.5); }
+.topbar-hunter { font-size: 13px; color: var(--text2); font-family: 'Share Tech Mono', monospace; }
+
+.bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; height: 72px; background: rgba(8,12,16,0.97); border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: space-around; z-index: 100; backdrop-filter: blur(10px); padding-bottom: env(safe-area-inset-bottom); }
+.nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 12px; cursor: pointer; transition: all 0.2s; border-radius: 12px; }
+.nav-item.active .nav-icon { color: var(--accent); }
+.nav-item.active .nav-label { color: var(--accent); }
+.nav-icon { font-size: 18px; color: var(--text3); transition: all 0.2s; }
+.nav-label { font-size: 9px; color: var(--text3); font-weight: 500; transition: all 0.2s; letter-spacing: 0.5px; }
+
+.screen { display: none; padding: 72px 16px 16px; animation: fadeIn 0.3s ease; }
+.screen.active { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+.rank-badge { font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 13px; letter-spacing: 2px; padding: 3px 10px; border-radius: 4px; display: inline-block; }
+.rank-E { background: rgba(122,138,154,0.15); color: var(--rank-e); border: 1px solid rgba(122,138,154,0.3); }
+.rank-D { background: rgba(76,175,80,0.15); color: var(--rank-d); border: 1px solid rgba(76,175,80,0.3); }
+.rank-C { background: rgba(33,150,243,0.15); color: var(--rank-c); border: 1px solid rgba(33,150,243,0.3); }
+.rank-B { background: rgba(156,39,176,0.15); color: var(--rank-b); border: 1px solid rgba(156,39,176,0.3); }
+.rank-A { background: rgba(255,152,0,0.15); color: var(--rank-a); border: 1px solid rgba(255,152,0,0.3); }
+.rank-S { background: rgba(255,184,0,0.15); color: var(--rank-s); border: 1px solid rgba(255,184,0,0.3); text-shadow: 0 0 10px rgba(255,184,0,0.5); }
+
+.stat-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 16px; padding: 18px; margin-bottom: 12px; cursor: pointer; transition: all 0.2s; position: relative; overflow: hidden; }
+.stat-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; opacity: 0.6; }
+.stat-card.stamina::before { background: linear-gradient(90deg, var(--green), transparent); }
+.stat-card.strength::before { background: linear-gradient(90deg, var(--red), transparent); }
+.stat-card.wealth::before { background: linear-gradient(90deg, var(--gold), transparent); }
+.stat-card:active { transform: scale(0.98); }
+.stat-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+.stat-card-name { font-family: 'Rajdhani', sans-serif; font-size: 18px; font-weight: 700; letter-spacing: 2px; }
+.stat-icon { font-size: 22px; }
+.xp-bar-wrap { margin-top: 12px; }
+.xp-bar-bg { height: 4px; background: var(--bg3); border-radius: 2px; overflow: hidden; }
+.xp-bar-fill { height: 100%; border-radius: 2px; transition: width 0.8s cubic-bezier(0.4,0,0.2,1); }
+.stamina .xp-bar-fill { background: var(--green); box-shadow: 0 0 8px rgba(0,230,118,0.4); }
+.strength .xp-bar-fill { background: var(--red); box-shadow: 0 0 8px rgba(255,68,85,0.4); }
+.wealth .xp-bar-fill { background: var(--gold); box-shadow: 0 0 8px rgba(255,184,0,0.4); }
+.xp-label { font-family: 'Share Tech Mono', monospace; font-size: 11px; color: var(--text2); margin-top: 6px; }
+
+.section-title { font-family: 'Rajdhani', sans-serif; font-size: 13px; font-weight: 600; letter-spacing: 3px; color: var(--text3); margin: 20px 0 10px; text-transform: uppercase; }
+
+.quest-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; margin-bottom: 8px; display: flex; align-items: center; gap: 12px; transition: all 0.2s; }
+.quest-card.done { opacity: 0.4; }
+.quest-check { width: 22px; height: 22px; border-radius: 50%; border: 1.5px solid var(--border2); flex-shrink: 0; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; }
+.quest-check.checked { background: var(--accent); border-color: var(--accent); }
+.quest-check.checked::after { content: '✓'; font-size: 12px; color: #000; font-weight: 700; }
+.quest-info { flex: 1; }
+.quest-title { font-size: 14px; font-weight: 500; color: var(--text); }
+.quest-card.done .quest-title { text-decoration: line-through; }
+.quest-meta { font-size: 12px; color: var(--text2); margin-top: 3px; font-family: 'Share Tech Mono', monospace; }
+.quest-type-badge { font-size: 10px; padding: 2px 8px; border-radius: 4px; font-family: 'Rajdhani', sans-serif; font-weight: 600; letter-spacing: 1px; white-space: nowrap; }
+.weekly { background: rgba(0,212,255,0.1); color: var(--accent); border: 1px solid rgba(0,212,255,0.2); }
+.monthly { background: rgba(155,109,255,0.1); color: var(--purple); border: 1px solid rgba(155,109,255,0.2); }
+
+.project-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 8px; }
+.project-header { display: flex; justify-content: space-between; align-items: flex-start; }
+.project-title { font-size: 15px; font-weight: 500; }
+.project-status { font-size: 10px; padding: 3px 8px; border-radius: 4px; font-family: 'Rajdhani', sans-serif; font-weight: 600; letter-spacing: 1px; }
+.status-active { background: rgba(0,230,118,0.1); color: var(--green); border: 1px solid rgba(0,230,118,0.2); }
+.status-done { background: rgba(122,138,154,0.1); color: var(--text2); border: 1px solid var(--border); }
+.project-desc { font-size: 13px; color: var(--text2); margin-top: 6px; line-height: 1.5; }
+.project-date { font-size: 11px; color: var(--text3); margin-top: 8px; font-family: 'Share Tech Mono', monospace; }
+
+.history-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 12px 16px; margin-bottom: 6px; display: flex; align-items: center; gap: 12px; }
+.history-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.history-info { flex: 1; }
+.history-title { font-size: 13px; color: var(--text); }
+.history-date { font-size: 11px; color: var(--text3); font-family: 'Share Tech Mono', monospace; margin-top: 2px; }
+.history-val { font-family: 'Share Tech Mono', monospace; font-size: 12px; color: var(--text2); white-space: nowrap; }
+
+.btn-primary { width: 100%; padding: 14px; background: transparent; border: 1px solid var(--accent); color: var(--accent); border-radius: 10px; font-family: 'Rajdhani', sans-serif; font-size: 15px; font-weight: 600; letter-spacing: 2px; cursor: pointer; transition: all 0.2s; margin-top: 8px; }
+.btn-primary:active { background: rgba(0,212,255,0.1); }
+.btn-ghost { padding: 10px 20px; background: transparent; border: 1px solid var(--border2); color: var(--text2); border-radius: 8px; font-family: 'Noto Sans KR', sans-serif; font-size: 13px; cursor: pointer; transition: all 0.2s; }
+.btn-ghost:active { background: var(--bg3); }
+
+.input-group { margin-bottom: 14px; }
+.input-label { font-size: 12px; color: var(--text2); margin-bottom: 6px; font-family: 'Share Tech Mono', monospace; letter-spacing: 1px; display: block; }
+.input-field { width: 100%; padding: 12px 14px; background: var(--bg3); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-size: 14px; font-family: 'Noto Sans KR', sans-serif; outline: none; transition: border-color 0.2s; }
+.input-field:focus { border-color: var(--accent2); }
+textarea.input-field { resize: none; min-height: 80px; }
+
+.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 200; align-items: flex-end; justify-content: center; }
+.modal-overlay.show { display: flex; }
+.modal { background: var(--bg2); border: 1px solid var(--border2); border-radius: 20px 20px 0 0; padding: 24px 20px 40px; width: 100%; max-width: 480px; animation: slideUp 0.3s ease; max-height: 90vh; overflow-y: auto; }
+@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+.modal-handle { width: 40px; height: 4px; background: var(--border2); border-radius: 2px; margin: 0 auto 20px; }
+.modal-title { font-family: 'Rajdhani', sans-serif; font-size: 20px; font-weight: 700; letter-spacing: 2px; margin-bottom: 20px; }
+
+.levelup-toast { position: fixed; top: 70px; left: 50%; transform: translateX(-50%) translateY(-20px); background: linear-gradient(135deg, rgba(255,184,0,0.2), rgba(255,184,0,0.05)); border: 1px solid var(--gold); border-radius: 12px; padding: 14px 24px; text-align: center; z-index: 300; opacity: 0; transition: all 0.4s; pointer-events: none; white-space: nowrap; }
+.levelup-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.levelup-toast-title { font-family: 'Rajdhani', sans-serif; font-size: 18px; font-weight: 700; color: var(--gold); letter-spacing: 3px; text-shadow: 0 0 20px rgba(255,184,0,0.6); }
+.levelup-toast-sub { font-size: 12px; color: var(--text2); margin-top: 2px; }
+
+.tab-row { display: flex; gap: 8px; margin-bottom: 14px; }
+.tab-btn { padding: 7px 16px; border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer; border: 1px solid var(--border); background: transparent; color: var(--text2); transition: all 0.2s; font-family: 'Noto Sans KR', sans-serif; }
+.tab-btn.active { border-color: var(--accent2); color: var(--accent); background: rgba(0,212,255,0.05); }
+
+.detail-condition { background: var(--bg3); border: 1px solid var(--border); border-radius: 10px; padding: 14px; margin-bottom: 8px; display: flex; align-items: center; gap: 12px; }
+.detail-condition-check { width: 20px; height: 20px; border-radius: 50%; border: 1.5px solid var(--border2); flex-shrink: 0; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+.detail-condition-check.done { background: var(--green); border-color: var(--green); }
+.detail-condition-check.done::after { content: '✓'; font-size: 11px; color: #000; font-weight: 700; }
+.detail-condition-text { font-size: 14px; }
+.detail-condition-text.done { text-decoration: line-through; color: var(--text2); }
+
+.empty-state { text-align: center; padding: 40px 20px; color: var(--text3); font-size: 14px; }
+.summary-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; margin-bottom: 8px; }
+.summary-row { display: flex; justify-content: space-between; align-items: center; }
+.summary-label { font-size: 13px; color: var(--text2); }
+.summary-val { font-family: 'Share Tech Mono', monospace; font-size: 13px; color: var(--text); }
+.summary-bar-wrap { margin-top: 8px; }
+.summary-bar-bg { height: 3px; background: var(--bg3); border-radius: 2px; overflow: hidden; }
+.summary-bar-fill { height: 100%; border-radius: 2px; background: var(--accent); transition: width 0.6s ease; }
+
+.ai-loading { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text2); padding: 8px 0; font-family: 'Share Tech Mono', monospace; }
+.ai-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); animation: blink 1s infinite; }
+.ai-dot:nth-child(2) { animation-delay: 0.2s; }
+.ai-dot:nth-child(3) { animation-delay: 0.4s; }
+@keyframes blink { 0%,100%{opacity:0.2} 50%{opacity:1} }
+
+select.input-field { appearance: none; }
+
+/* SYSTEM MESSAGE */
+.system-msg {
+  background: linear-gradient(135deg, rgba(0,212,255,0.05), rgba(0,212,255,0.02));
+  border: 1px solid rgba(0,212,255,0.15);
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-bottom: 16px;
+  position: relative;
+}
+.system-msg-label { font-family: 'Share Tech Mono', monospace; font-size: 10px; color: var(--accent2); letter-spacing: 2px; margin-bottom: 6px; }
+.system-msg-text { font-size: 14px; color: var(--text); line-height: 1.6; }
+.system-msg-loading { display: flex; align-items: center; gap: 8px; }
+
+/* TIMELINE */
+.timeline-item { display: flex; gap: 14px; margin-bottom: 16px; }
+.timeline-left { display: flex; flex-direction: column; align-items: center; }
+.timeline-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; margin-top: 4px; }
+.timeline-line { width: 1px; background: var(--border); flex: 1; margin-top: 4px; }
+.timeline-content { flex: 1; padding-bottom: 8px; }
+.timeline-title { font-size: 14px; font-weight: 500; color: var(--text); }
+.timeline-sub { font-size: 12px; color: var(--text2); margin-top: 3px; }
+.timeline-date { font-size: 11px; color: var(--text3); margin-top: 4px; font-family: 'Share Tech Mono', monospace; }
+
+/* GOAL CARD */
+.goal-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 8px; }
+.goal-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+.goal-title { font-size: 14px; font-weight: 500; }
+.goal-deadline { font-size: 11px; color: var(--text3); font-family: 'Share Tech Mono', monospace; margin-top: 3px; }
+.goal-dday { font-family: 'Rajdhani', sans-serif; font-size: 18px; font-weight: 700; }
+.goal-dday.overdue { color: var(--red); }
+.goal-dday.soon { color: var(--gold); }
+.goal-dday.ok { color: var(--green); }
+
+/* GRAPH */
+.graph-wrap { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 12px; }
+.graph-title { font-size: 13px; color: var(--text2); margin-bottom: 12px; font-family: 'Share Tech Mono', monospace; }
+.graph-bars { display: flex; align-items: flex-end; gap: 6px; height: 80px; }
+.graph-bar-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; height: 100%; justify-content: flex-end; }
+.graph-bar { width: 100%; border-radius: 3px 3px 0 0; transition: height 0.6s ease; min-height: 2px; }
+.graph-bar-label { font-size: 9px; color: var(--text3); font-family: 'Share Tech Mono', monospace; }
+.graph-legend { display: flex; gap: 12px; margin-top: 10px; flex-wrap: wrap; }
+.graph-legend-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--text2); }
+.graph-legend-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+/* HOME HEADER */
+.home-header { padding: 8px 0 4px; }
+.home-greeting { font-size: 13px; color: var(--text2); font-family: 'Share Tech Mono', monospace; }
+.home-name { font-family: 'Rajdhani', sans-serif; font-size: 28px; font-weight: 700; letter-spacing: 2px; margin-top: 4px; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-logo">SYSTEM</div>
+  <div class="topbar-hunter" id="topbar-name">HUNTER</div>
+</div>
+
+<div class="levelup-toast" id="levelup-toast">
+  <div class="levelup-toast-title" id="toast-title">RANK UP!</div>
+  <div class="levelup-toast-sub" id="toast-sub"></div>
+</div>
+
+<!-- HOME -->
+<div class="screen active" id="screen-home">
+  <div class="home-header">
+    <div class="home-greeting" id="home-greeting">[ SYSTEM ONLINE ]</div>
+    <div class="home-name" id="home-name">헌터</div>
+  </div>
+
+  <!-- 시스템 메시지 -->
+  <div class="system-msg" id="system-msg-wrap">
+    <div class="system-msg-label">[ SYSTEM MESSAGE ]</div>
+    <div class="system-msg-loading" id="system-msg-loading">
+      <div class="ai-dot"></div><div class="ai-dot"></div><div class="ai-dot"></div>
+      <span style="font-size:12px;font-family:'Share Tech Mono',monospace;color:var(--text3)">시스템 분석 중...</span>
+    </div>
+    <div class="system-msg-text" id="system-msg-text" style="display:none"></div>
+  </div>
+
+  <div class="section-title">능력치</div>
+  <div id="home-stats"></div>
+
+  <div class="section-title">주간 퀘스트</div>
+  <div id="home-weekly-summary"></div>
+
+  <div class="section-title">월간 퀘스트</div>
+  <div id="home-monthly-summary"></div>
+
+  <div class="section-title">진행 중인 프로젝트</div>
+  <div id="home-projects"></div>
+</div>
+
+<!-- STATS -->
+<div class="screen" id="screen-stats">
+  <div class="section-title">스탯 상세</div>
+  <div id="stats-detail"></div>
+</div>
+
+<!-- QUESTS -->
+<div class="screen" id="screen-quests">
+  <div class="section-title">퀘스트</div>
+  <div class="tab-row">
+    <button class="tab-btn active" onclick="switchQuestTab('weekly')">주간</button>
+    <button class="tab-btn" onclick="switchQuestTab('monthly')">월간</button>
+  </div>
+  <div id="quest-list"></div>
+  <button class="btn-primary" onclick="openQuestModal()">+ 퀘스트 추가</button>
+  <button class="btn-primary" style="border-color:var(--purple);color:var(--purple);margin-top:8px;" onclick="generateAIQuests()">AI 퀘스트 생성 ↗</button>
+  <button class="btn-primary" style="border-color:var(--red);color:var(--red);margin-top:8px;" onclick="confirmResetQuests()">퀘스트 리셋</button>
+  <div class="ai-loading" id="ai-loading" style="display:none;">
+    <div class="ai-dot"></div><div class="ai-dot"></div><div class="ai-dot"></div>
+    <span>시스템이 퀘스트를 분석 중...</span>
+  </div>
+</div>
+
+<!-- PROJECTS -->
+<div class="screen" id="screen-projects">
+  <div class="section-title">재력 프로젝트</div>
+  <div id="project-list"></div>
+  <button class="btn-primary" onclick="openProjectModal()">+ 프로젝트 추가</button>
+</div>
+
+<!-- GOALS -->
+<div class="screen" id="screen-goals">
+  <div class="section-title">목표</div>
+  <div id="goal-list"></div>
+  <button class="btn-primary" onclick="openGoalModal()">+ 목표 추가</button>
+
+  <div class="section-title">성장 그래프</div>
+  <div id="growth-graph"></div>
+
+  <div class="section-title">승급 타임라인</div>
+  <div id="rankup-timeline"></div>
+</div>
+
+<!-- HISTORY -->
+<div class="screen" id="screen-history">
+  <div class="section-title">기록</div>
+  <div id="history-list"></div>
+  <button class="btn-primary" onclick="openUpdateModal()">수치 업데이트</button>
+</div>
+
+<!-- BOTTOM NAV -->
+<div class="bottom-nav">
+  <div class="nav-item active" onclick="switchScreen('home')">
+    <div class="nav-icon">⬡</div>
+    <div class="nav-label">홈</div>
+  </div>
+  <div class="nav-item" onclick="switchScreen('stats')">
+    <div class="nav-icon">◈</div>
+    <div class="nav-label">스탯</div>
+  </div>
+  <div class="nav-item" onclick="switchScreen('quests')">
+    <div class="nav-icon">◉</div>
+    <div class="nav-label">퀘스트</div>
+  </div>
+  <div class="nav-item" onclick="switchScreen('projects')">
+    <div class="nav-icon">◇</div>
+    <div class="nav-label">프로젝트</div>
+  </div>
+  <div class="nav-item" onclick="switchScreen('goals')">
+    <div class="nav-icon">◎</div>
+    <div class="nav-label">목표</div>
+  </div>
+  <div class="nav-item" onclick="switchScreen('history')">
+    <div class="nav-icon">▤</div>
+    <div class="nav-label">기록</div>
+  </div>
+</div>
+
+<!-- MODALS -->
+<div class="modal-overlay" id="quest-modal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">퀘스트 추가</div>
+    <div class="input-group">
+      <label class="input-label">퀘스트 내용</label>
+      <input class="input-field" id="quest-title-input" placeholder="예: 5km 달리기 3회" />
+    </div>
+    <div class="input-group">
+      <label class="input-label">스탯</label>
+      <select class="input-field" id="quest-stat-input">
+        <option value="stamina">체력</option>
+        <option value="strength">근력</option>
+      </select>
+    </div>
+    <div class="input-group">
+      <label class="input-label">종류</label>
+      <select class="input-field" id="quest-type-input">
+        <option value="weekly">주간</option>
+        <option value="monthly">월간</option>
+      </select>
+    </div>
+    <div class="input-group">
+      <label class="input-label">목표 횟수</label>
+      <input class="input-field" id="quest-target-input" type="number" placeholder="3" min="1" />
+    </div>
+    <div style="display:flex;gap:8px;margin-top:8px;">
+      <button class="btn-ghost" style="flex:1" onclick="closeModal('quest-modal')">취소</button>
+      <button class="btn-primary" style="flex:2;margin-top:0" onclick="saveQuest()">추가</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="project-modal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">프로젝트 추가</div>
+    <div class="input-group">
+      <label class="input-label">프로젝트명</label>
+      <input class="input-field" id="proj-title-input" placeholder="예: 부수입 채널 만들기" />
+    </div>
+    <div class="input-group">
+      <label class="input-label">설명 (선택)</label>
+      <textarea class="input-field" id="proj-desc-input" placeholder="구체적인 계획이나 목표를 적어주세요"></textarea>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:8px;">
+      <button class="btn-ghost" style="flex:1" onclick="closeModal('project-modal')">취소</button>
+      <button class="btn-primary" style="flex:2;margin-top:0" onclick="saveProject()">추가</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="goal-modal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">목표 추가</div>
+    <div class="input-group">
+      <label class="input-label">목표 내용</label>
+      <input class="input-field" id="goal-title-input" placeholder="예: 올해 안에 체력 C등급 달성" />
+    </div>
+    <div class="input-group">
+      <label class="input-label">스탯</label>
+      <select class="input-field" id="goal-stat-input">
+        <option value="stamina">체력</option>
+        <option value="strength">근력</option>
+        <option value="wealth">재력</option>
+      </select>
+    </div>
+    <div class="input-group">
+      <label class="input-label">목표 등급</label>
+      <select class="input-field" id="goal-rank-input">
+        <option value="D">D등급</option>
+        <option value="C">C등급</option>
+        <option value="B">B등급</option>
+        <option value="A">A등급</option>
+        <option value="S">S등급</option>
+      </select>
+    </div>
+    <div class="input-group">
+      <label class="input-label">목표 날짜</label>
+      <input class="input-field" id="goal-date-input" type="date" />
+    </div>
+    <div style="display:flex;gap:8px;margin-top:8px;">
+      <button class="btn-ghost" style="flex:1" onclick="closeModal('goal-modal')">취소</button>
+      <button class="btn-primary" style="flex:2;margin-top:0" onclick="saveGoal()">추가</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="update-modal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">수치 업데이트</div>
+    <div class="input-group">
+      <label class="input-label">스탯 선택</label>
+      <select class="input-field" id="update-stat-input" onchange="renderUpdateFields()">
+        <option value="stamina">체력</option>
+        <option value="strength">근력</option>
+        <option value="wealth">재력</option>
+      </select>
+    </div>
+    <div id="update-fields"></div>
+    <div style="display:flex;gap:8px;margin-top:8px;">
+      <button class="btn-ghost" style="flex:1" onclick="closeModal('update-modal')">취소</button>
+      <button class="btn-primary" style="flex:2;margin-top:0" onclick="saveUpdate()">저장</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay show" id="name-modal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">헌터 등록</div>
+    <div class="input-group">
+      <label class="input-label">헌터 이름</label>
+      <input class="input-field" id="name-input" placeholder="이름을 입력하세요" />
+    </div>
+    <button class="btn-primary" onclick="saveName()">시스템 접속</button>
+  </div>
+</div>
+
+<script>
+const RANKS = ['E','D','C','B','A','S'];
+const STAT_CONFIG = {
+  stamina: {
+    name: '체력', icon: '♥', type: 'condition',
+    ranks: {
+      E: { conditions: [{ id:'e1', text:'3km 완주', done:false }] },
+      D: { conditions: [{ id:'d1', text:'5km 완주', done:false }, { id:'d2', text:'3km 18분 내 완주', done:false }] },
+      C: { conditions: [{ id:'c1', text:'10km 완주', done:false }, { id:'c2', text:'5km 30분 내 완주', done:false }] },
+      B: { conditions: [{ id:'b1', text:'21.0975km 완주 (하프마라톤)', done:false }, { id:'b2', text:'10km 60분 내 완주', done:false }] },
+      A: { conditions: [{ id:'a1', text:'42.195km 완주 (풀마라톤)', done:false }, { id:'a2', text:'21.0975km 2시간 내 완주', done:false }] },
+      S: { conditions: [{ id:'s1', text:'42.195km 4시간 내 완주', done:false }] }
+    }
+  },
+  strength: {
+    name: '근력', icon: '⚡', type: 'condition',
+    ranks: {
+      E: { conditions: [{ id:'e1', text:'팔굽혀펴기 10개', done:false }, { id:'e2', text:'턱걸이 1개', done:false }] },
+      D: { conditions: [{ id:'d1', text:'팔굽혀펴기 20개', done:false }, { id:'d2', text:'턱걸이 3개', done:false }] },
+      C: { conditions: [{ id:'c1', text:'팔굽혀펴기 35개', done:false }, { id:'c2', text:'턱걸이 6개', done:false }] },
+      B: { conditions: [{ id:'b1', text:'팔굽혀펴기 50개', done:false }, { id:'b2', text:'턱걸이 10개', done:false }] },
+      A: { conditions: [{ id:'a1', text:'팔굽혀펴기 70개', done:false }, { id:'a2', text:'턱걸이 20개', done:false }] },
+      S: { conditions: [{ id:'s1', text:'팔굽혀펴기 100개', done:false }, { id:'s2', text:'턱걸이 30개', done:false }] }
+    }
+  },
+  wealth: {
+    name: '재력', icon: '◈', type: 'linear',
+    ranges: { E:{min:0,max:1000}, D:{min:1000,max:10000}, C:{min:10000,max:50000}, B:{min:50000,max:200000}, A:{min:200000,max:1000000}, S:{min:1000000,max:9999999} }
+  }
+};
+
+const DEFAULT_STATE = {
+  hunterName: '',
+  stats: {
+    stamina: { rank: 'E', conditions: JSON.parse(JSON.stringify(STAT_CONFIG.stamina.ranks)) },
+    strength: { rank: 'E', conditions: JSON.parse(JSON.stringify(STAT_CONFIG.strength.ranks)) },
+    wealth: { rank: 'E', amount: 0 }
+  },
+  quests: [], projects: [], history: [], goals: [], rankHistory: [],
+  lastWeeklyReset: null, lastMonthlyReset: null
+};
+
+let state;
+function loadState() {
+  try {
+    const s = localStorage.getItem('system_v2');
+    // migrate from v1
+    const old = localStorage.getItem('system_v1');
+    if (s) {
+      state = JSON.parse(s);
+    } else if (old) {
+      state = JSON.parse(old);
+      state.goals = state.goals || [];
+      state.rankHistory = state.rankHistory || [];
+      state.lastWeeklyReset = state.lastWeeklyReset || null;
+      state.lastMonthlyReset = state.lastMonthlyReset || null;
+    } else {
+      state = JSON.parse(JSON.stringify(DEFAULT_STATE));
+    }
+    if (!state.stats.stamina.conditions) state.stats.stamina.conditions = JSON.parse(JSON.stringify(STAT_CONFIG.stamina.ranks));
+    if (!state.stats.strength.conditions) state.stats.strength.conditions = JSON.parse(JSON.stringify(STAT_CONFIG.strength.ranks));
+    if (!state.goals) state.goals = [];
+    if (!state.rankHistory) state.rankHistory = [];
+  } catch(e) { state = JSON.parse(JSON.stringify(DEFAULT_STATE)); }
+}
+function saveState() {
+  try { localStorage.setItem('system_v2', JSON.stringify(state)); } catch(e){}
+}
+
+// ===== AUTO RESET =====
+function checkAutoReset() {
+  const now = new Date();
+  const todayStr = now.toDateString();
+  const weekday = now.getDay(); // 0=Sun, 1=Mon
+  const date = now.getDate();
+
+  // Weekly reset on Monday
+  if (weekday === 1 && state.lastWeeklyReset !== todayStr) {
+    state.quests.filter(q=>q.type==='weekly').forEach(q=>{ q.progress=0; });
+    state.lastWeeklyReset = todayStr;
+    saveState();
+  }
+  // Monthly reset on 1st
+  if (date === 1 && state.lastMonthlyReset !== todayStr) {
+    state.quests.filter(q=>q.type==='monthly').forEach(q=>{ q.progress=0; });
+    state.lastMonthlyReset = todayStr;
+    saveState();
+  }
+}
+
+function getStatXP(key) {
+  const statData = state.stats[key];
+  if (key === 'wealth') {
+    const range = STAT_CONFIG.wealth.ranges[statData.rank];
+    const amt = statData.amount || 0;
+    const pct = Math.min(100, Math.max(0, Math.round((amt - range.min) / (range.max - range.min) * 100)));
+    return { pct, done: null, total: null };
+  } else {
+    const conds = statData.conditions[statData.rank].conditions;
+    const done = conds.filter(c=>c.done).length;
+    return { done, total: conds.length, pct: Math.round(done/conds.length*100) };
+  }
+}
+
+function getRankColor(rank) {
+  const map = { E:'var(--rank-e)', D:'var(--rank-d)', C:'var(--rank-c)', B:'var(--rank-b)', A:'var(--rank-a)', S:'var(--rank-s)' };
+  return map[rank] || 'var(--text2)';
+}
+
+function canRankUp(statKey) {
+  const statData = state.stats[statKey];
+  if (statData.rank === 'S') return false;
+  return getStatXP(statKey).pct >= 100;
+}
+
+function doRankUp(statKey) {
+  const statData = state.stats[statKey];
+  const curIdx = RANKS.indexOf(statData.rank);
+  if (curIdx >= RANKS.length - 1) return;
+  const prevRank = statData.rank;
+  statData.rank = RANKS[curIdx + 1];
+  const statName = STAT_CONFIG[statKey].name;
+  const dateStr = new Date().toLocaleDateString('ko-KR');
+  addHistory(statName, `${prevRank}등급 → ${statData.rank}등급 승급`, getRankColor(statData.rank));
+  state.rankHistory.unshift({ stat: statKey, statName, from: prevRank, to: statData.rank, date: dateStr });
+  showToast(`${statName} 랭크 업!`, `${prevRank}등급 → ${statData.rank}등급`);
+  saveState();
+}
+
+function addHistory(stat, desc, color) {
+  state.history.unshift({ stat, desc, color, date: new Date().toLocaleDateString('ko-KR') });
+  if (state.history.length > 100) state.history.pop();
+}
+
+function showToast(title, sub) {
+  const toast = document.getElementById('levelup-toast');
+  document.getElementById('toast-title').textContent = title;
+  document.getElementById('toast-sub').textContent = sub;
+  toast.classList.add('show');
+  setTimeout(()=>toast.classList.remove('show'), 3500);
+}
+
+// ===== NAVIGATION =====
+let currentScreen = 'home';
+const SCREENS = ['home','stats','quests','projects','goals','history'];
+function switchScreen(name) {
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('screen-'+name).classList.add('active');
+  document.querySelectorAll('.nav-item')[SCREENS.indexOf(name)].classList.add('active');
+  currentScreen = name;
+  renderScreen(name);
+}
+function renderScreen(name) {
+  if (name==='home') renderHome();
+  else if (name==='stats') renderStatsDetail();
+  else if (name==='quests') renderQuests();
+  else if (name==='projects') renderProjects();
+  else if (name==='goals') renderGoals();
+  else if (name==='history') renderHistory();
+}
+
+// ===== HOME =====
+function renderHome() {
+  document.getElementById('topbar-name').textContent = state.hunterName || 'HUNTER';
+  document.getElementById('home-name').textContent = state.hunterName || '헌터';
+  const hour = new Date().getHours();
+  const greet = hour<6?'[ 심야 접속 ]':hour<12?'[ 아침 접속 ]':hour<18?'[ 오후 접속 ]':'[ 저녁 접속 ]';
+  document.getElementById('home-greeting').textContent = greet;
+
+  // Stats
+  const statsEl = document.getElementById('home-stats');
+  statsEl.innerHTML = '';
+  ['stamina','strength','wealth'].forEach(key => {
+    const cfg = STAT_CONFIG[key];
+    const statData = state.stats[key];
+    const xp = getStatXP(key);
+    const card = document.createElement('div');
+    card.className = `stat-card ${key}`;
+    card.onclick = () => switchScreen('stats');
+    let xpText = key==='wealth' ? `${(statData.amount||0).toLocaleString()}만원 · ${xp.pct}%` : `${xp.done}/${xp.total} 조건 달성 · ${xp.pct}%`;
+    card.innerHTML = `
+      <div class="stat-card-header">
+        <div>
+          <div style="font-size:11px;color:var(--text3);font-family:'Share Tech Mono',monospace;letter-spacing:2px;margin-bottom:4px">${key.toUpperCase()}</div>
+          <div class="stat-card-name">${cfg.name}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <span class="rank-badge rank-${statData.rank}">${statData.rank}-RANK</span>
+          <span class="stat-icon">${cfg.icon}</span>
+        </div>
+      </div>
+      <div class="xp-bar-wrap">
+        <div class="xp-bar-bg"><div class="xp-bar-fill" style="width:${xp.pct}%"></div></div>
+        <div class="xp-label">${xpText}</div>
+      </div>`;
+    statsEl.appendChild(card);
+  });
+
+  // Quest summaries
+  const weekly = state.quests.filter(q=>q.type==='weekly');
+  const weeklyDone = weekly.filter(q=>q.progress>=q.target).length;
+  document.getElementById('home-weekly-summary').innerHTML = weekly.length===0
+    ? '<div class="empty-state">퀘스트가 없습니다</div>'
+    : `<div class="summary-card"><div class="summary-row"><span class="summary-label">이번 주 퀘스트</span><span class="summary-val">${weeklyDone}/${weekly.length} 완료</span></div><div class="summary-bar-wrap"><div class="summary-bar-bg"><div class="summary-bar-fill" style="width:${weekly.length?Math.round(weeklyDone/weekly.length*100):0}%"></div></div></div></div>`;
+
+  const monthly = state.quests.filter(q=>q.type==='monthly');
+  const monthlyDone = monthly.filter(q=>q.progress>=q.target).length;
+  document.getElementById('home-monthly-summary').innerHTML = monthly.length===0
+    ? '<div class="empty-state">퀘스트가 없습니다</div>'
+    : `<div class="summary-card"><div class="summary-row"><span class="summary-label">이번 달 퀘스트</span><span class="summary-val">${monthlyDone}/${monthly.length} 완료</span></div><div class="summary-bar-wrap"><div class="summary-bar-bg"><div class="summary-bar-fill" style="width:${monthly.length?Math.round(monthlyDone/monthly.length*100):0}%"></div></div></div></div>`;
+
+  // Projects
+  const activeProj = state.projects.filter(p=>p.status==='active');
+  document.getElementById('home-projects').innerHTML = activeProj.length===0
+    ? '<div class="empty-state">진행 중인 프로젝트가 없습니다</div>'
+    : activeProj.slice(0,3).map(p=>`<div class="project-card"><div class="project-header"><div class="project-title">${p.title}</div><span class="project-status status-active">진행 중</span></div>${p.desc?`<div class="project-desc">${p.desc}</div>`:''}</div>`).join('');
+
+  // System message
+  loadSystemMessage();
+}
+
+// ===== SYSTEM MESSAGE =====
+let systemMsgCache = null;
+let systemMsgDate = null;
+
+async function loadSystemMessage() {
+  const todayStr = new Date().toDateString();
+  if (systemMsgCache && systemMsgDate === todayStr) {
+    document.getElementById('system-msg-loading').style.display = 'none';
+    document.getElementById('system-msg-text').style.display = 'block';
+    document.getElementById('system-msg-text').textContent = systemMsgCache;
+    return;
+  }
+  document.getElementById('system-msg-loading').style.display = 'flex';
+  document.getElementById('system-msg-text').style.display = 'none';
+
+  const staminaRank = state.stats.stamina.rank;
+  const strengthRank = state.stats.strength.rank;
+  const wealthRank = state.stats.wealth.rank;
+  const staminaXP = getStatXP('stamina');
+  const strengthXP = getStatXP('strength');
+  const wealthXP = getStatXP('wealth');
+  const weeklyDone = state.quests.filter(q=>q.type==='weekly'&&q.progress>=q.target).length;
+  const weeklyTotal = state.quests.filter(q=>q.type==='weekly').length;
+
+  const prompt = `당신은 나 혼자만 레벨업의 시스템입니다. 차갑고 간결하게 헌터에게 한 마디를 전달하세요.
+
+헌터 현황:
+- 이름: ${state.hunterName}
+- 체력: ${staminaRank}등급 (${staminaXP.pct}%)
+- 근력: ${strengthRank}등급 (${strengthXP.pct}%)
+- 재력: ${wealthRank}등급 (${wealthXP.pct}%)
+- 주간 퀘스트: ${weeklyDone}/${weeklyTotal} 완료
+
+2~3문장으로 현재 상태를 분석하고 동기부여 메시지를 주세요. 나혼자만 레벨업 시스템 말투로 (예: "헌터, 현재 체력 수치는..."). 한국어로.`;
+
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:200, messages:[{role:'user',content:prompt}] })
+    });
+    const data = await resp.json();
+    const text = data.content.map(c=>c.text||'').join('').trim();
+    systemMsgCache = text;
+    systemMsgDate = todayStr;
+    document.getElementById('system-msg-loading').style.display = 'none';
+    document.getElementById('system-msg-text').style.display = 'block';
+    document.getElementById('system-msg-text').textContent = text;
+  } catch(e) {
+    systemMsgCache = `헌터 ${state.hunterName}, 현재 시스템이 당신의 성장을 추적 중입니다. 오늘의 퀘스트를 완료하고 다음 등급으로 나아가십시오.`;
+    systemMsgDate = todayStr;
+    document.getElementById('system-msg-loading').style.display = 'none';
+    document.getElementById('system-msg-text').style.display = 'block';
+    document.getElementById('system-msg-text').textContent = systemMsgCache;
+  }
+}
+
+// ===== STATS DETAIL =====
+function renderStatsDetail() {
+  const el = document.getElementById('stats-detail');
+  el.innerHTML = '';
+  ['stamina','strength','wealth'].forEach(key => {
+    const cfg = STAT_CONFIG[key];
+    const statData = state.stats[key];
+    const xp = getStatXP(key);
+    const section = document.createElement('div');
+    section.style.marginBottom = '24px';
+
+    if (key === 'wealth') {
+      const range = STAT_CONFIG.wealth.ranges[statData.rank];
+      section.innerHTML = `
+        <div class="stat-card ${key}" style="cursor:default">
+          <div class="stat-card-header">
+            <div><div style="font-size:11px;color:var(--text3);font-family:'Share Tech Mono',monospace;letter-spacing:2px;margin-bottom:4px">WEALTH</div><div class="stat-card-name">재력</div></div>
+            <span class="rank-badge rank-${statData.rank}">${statData.rank}-RANK</span>
+          </div>
+          <div class="xp-bar-wrap">
+            <div class="xp-bar-bg"><div class="xp-bar-fill" style="width:${xp.pct}%"></div></div>
+            <div class="xp-label">현재 ${(statData.amount||0).toLocaleString()}만원 · ${xp.pct}% (다음: ${range.max.toLocaleString()}만원)</div>
+          </div>
+        </div>
+        ${statData.rank!=='S'?`<button class="btn-primary" style="border-color:var(--gold);color:var(--gold)" onclick="openUpdateModal('wealth')">순자산 업데이트</button>`:''}`;
+    } else {
+      const conds = statData.conditions[statData.rank].conditions;
+      const allDone = xp.pct >= 100;
+      section.innerHTML = `
+        <div class="stat-card ${key}" style="cursor:default">
+          <div class="stat-card-header">
+            <div><div style="font-size:11px;color:var(--text3);font-family:'Share Tech Mono',monospace;letter-spacing:2px;margin-bottom:4px">${key.toUpperCase()}</div><div class="stat-card-name">${cfg.name}</div></div>
+            <span class="rank-badge rank-${statData.rank}">${statData.rank}-RANK</span>
+          </div>
+          <div class="xp-bar-wrap">
+            <div class="xp-bar-bg"><div class="xp-bar-fill" style="width:${xp.pct}%"></div></div>
+            <div class="xp-label">${xp.done}/${xp.total} 조건 달성 · ${xp.pct}%</div>
+          </div>
+        </div>
+        <div style="margin-top:12px">
+          <div style="font-size:12px;color:var(--text3);font-family:'Share Tech Mono',monospace;letter-spacing:2px;margin-bottom:8px">[ 승급 조건 ]</div>
+          ${conds.map(c=>`<div class="detail-condition"><div class="detail-condition-check ${c.done?'done':''}" onclick="toggleCondition('${key}','${c.id}')"></div><div class="detail-condition-text ${c.done?'done':''}">${c.text}</div></div>`).join('')}
+        </div>
+        ${allDone&&statData.rank!=='S'?`<button class="btn-primary" style="border-color:var(--gold);color:var(--gold);margin-top:12px" onclick="doRankUp('${key}');renderStatsDetail()">⬆ 등급 승급</button>`:''}`;
+    }
+    el.appendChild(section);
+  });
+}
+
+function toggleCondition(statKey, condId) {
+  const statData = state.stats[statKey];
+  const conds = statData.conditions[statData.rank].conditions;
+  const cond = conds.find(c=>c.id===condId);
+  if (cond) {
+    cond.done = !cond.done;
+    if (cond.done) addHistory(STAT_CONFIG[statKey].name, `조건 달성: ${cond.text}`, getRankColor(statData.rank));
+    saveState();
+    renderStatsDetail();
+    if (canRankUp(statKey)) showToast('승급 가능!', '스탯 화면에서 승급 버튼을 누르세요');
+  }
+}
+
+// ===== QUESTS =====
+let questTab = 'weekly';
+function switchQuestTab(tab) {
+  questTab = tab;
+  document.querySelectorAll('.tab-btn').forEach((b,i)=>b.classList.toggle('active',(i===0&&tab==='weekly')||(i===1&&tab==='monthly')));
+  renderQuests();
+}
+
+function renderQuests() {
+  const el = document.getElementById('quest-list');
+  const filtered = state.quests.filter(q=>q.type===questTab);
+  if (filtered.length===0) { el.innerHTML='<div class="empty-state">퀘스트가 없습니다</div>'; return; }
+  el.innerHTML = filtered.map(q => {
+    const realIdx = state.quests.indexOf(q);
+    const isDone = q.progress>=q.target;
+    const pct = Math.min(100,Math.round(q.progress/q.target*100));
+    return `<div class="quest-card ${isDone?'done':''}">
+      <div class="quest-check ${isDone?'checked':''}" onclick="incrementQuest(${realIdx})"></div>
+      <div class="quest-info">
+        <div class="quest-title">${q.title}</div>
+        <div class="quest-meta">${STAT_CONFIG[q.stat]?.name||q.stat} · ${q.progress}/${q.target}회</div>
+        <div style="margin-top:6px"><div class="xp-bar-bg" style="height:3px"><div class="xp-bar-fill" style="width:${pct}%;background:var(--accent)"></div></div></div>
+      </div>
+      <span class="quest-type-badge ${q.type}">${q.type==='weekly'?'주간':'월간'}</span>
+    </div>`;
+  }).join('');
+}
+
+function incrementQuest(idx) {
+  const q = state.quests[idx];
+  if (q.progress>=q.target) return;
+  q.progress++;
+  if (q.progress>=q.target) { addHistory(STAT_CONFIG[q.stat]?.name||q.stat, `퀘스트 완료: ${q.title}`, 'var(--accent)'); showToast('퀘스트 완료!', q.title); }
+  saveState(); renderQuests(); renderHome();
+}
+
+function confirmResetQuests() {
+  if (confirm('현재 탭의 퀘스트 진행도를 모두 리셋할까요?')) {
+    state.quests.filter(q=>q.type===questTab).forEach(q=>{ q.progress=0; });
+    saveState(); renderQuests();
+  }
+}
+
+// ===== PROJECTS =====
+function renderProjects() {
+  const el = document.getElementById('project-list');
+  if (state.projects.length===0) { el.innerHTML='<div class="empty-state">프로젝트가 없습니다</div>'; return; }
+  el.innerHTML = state.projects.map((p,i)=>`
+    <div class="project-card">
+      <div class="project-header">
+        <div class="project-title">${p.title}</div>
+        <div style="display:flex;gap:6px;align-items:center">
+          <span class="project-status ${p.status==='active'?'status-active':'status-done'}">${p.status==='active'?'진행 중':'완료'}</span>
+          ${p.status==='active'?`<button class="btn-ghost" style="padding:4px 10px;font-size:11px" onclick="completeProject(${i})">완료</button>`:''}
+        </div>
+      </div>
+      ${p.desc?`<div class="project-desc">${p.desc}</div>`:''}
+      <div class="project-date">${p.date}</div>
+    </div>`).join('');
+}
+
+function completeProject(i) {
+  state.projects[i].status='done';
+  addHistory('재력', `프로젝트 완료: ${state.projects[i].title}`, 'var(--gold)');
+  saveState(); renderProjects();
+}
+
+// ===== GOALS =====
+function renderGoals() {
+  const el = document.getElementById('goal-list');
+  if (state.goals.length===0) { el.innerHTML='<div class="empty-state">목표가 없습니다</div>'; }
+  else {
+    const today = new Date(); today.setHours(0,0,0,0);
+    el.innerHTML = state.goals.map((g,i)=>{
+      const target = new Date(g.date); target.setHours(0,0,0,0);
+      const diff = Math.round((target-today)/(1000*60*60*24));
+      const ddayClass = diff<0?'overdue':diff<=30?'soon':'ok';
+      const ddayText = diff<0?`D+${Math.abs(diff)}`:diff===0?'D-DAY':`D-${diff}`;
+      const currentRank = state.stats[g.stat]?.rank||'E';
+      const achieved = RANKS.indexOf(currentRank)>=RANKS.indexOf(g.targetRank);
+      return `<div class="goal-card">
+        <div class="goal-header">
+          <div>
+            <div class="goal-title">${g.title}</div>
+            <div class="goal-deadline">${g.date} · ${STAT_CONFIG[g.stat]?.name} ${g.targetRank}등급</div>
+          </div>
+          <div style="text-align:right">
+            ${achieved?'<span style="color:var(--green);font-family:Rajdhani,sans-serif;font-weight:700;font-size:16px">달성!</span>':`<div class="goal-dday ${ddayClass}">${ddayText}</div>`}
+          </div>
+        </div>
+        <div style="margin-top:10px">
+          <div class="xp-bar-bg"><div class="xp-bar-fill" style="width:${getGoalProgress(g)}%;background:${achieved?'var(--green)':'var(--accent)'}"></div></div>
+          <div style="font-size:11px;color:var(--text3);margin-top:4px;font-family:'Share Tech Mono',monospace">현재 ${currentRank}등급 → 목표 ${g.targetRank}등급</div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  // Growth graph
+  renderGrowthGraph();
+
+  // Rank timeline
+  const tlEl = document.getElementById('rankup-timeline');
+  if (state.rankHistory.length===0) {
+    tlEl.innerHTML = '<div class="empty-state">아직 승급 기록이 없습니다</div>';
+  } else {
+    tlEl.innerHTML = state.rankHistory.map((r,i)=>`
+      <div class="timeline-item">
+        <div class="timeline-left">
+          <div class="timeline-dot" style="background:${getRankColor(r.to)}"></div>
+          ${i<state.rankHistory.length-1?'<div class="timeline-line"></div>':''}
+        </div>
+        <div class="timeline-content">
+          <div class="timeline-title">${r.statName} ${r.from}등급 → ${r.to}등급</div>
+          <div class="timeline-sub"><span class="rank-badge rank-${r.to}" style="font-size:11px">${r.to}-RANK</span></div>
+          <div class="timeline-date">${r.date}</div>
+        </div>
+      </div>`).join('');
+  }
+}
+
+function getGoalProgress(g) {
+  const cur = RANKS.indexOf(state.stats[g.stat]?.rank||'E');
+  const start = 0;
+  const target = RANKS.indexOf(g.targetRank);
+  if (target<=0) return 100;
+  return Math.min(100, Math.round(cur/target*100));
+}
+
+function renderGrowthGraph() {
+  const el = document.getElementById('growth-graph');
+  // Build last 6 months of rank snapshots from rankHistory
+  const months = [];
+  for (let i=5; i>=0; i--) {
+    const d = new Date();
+    d.setMonth(d.getMonth()-i);
+    months.push({ label: `${d.getMonth()+1}월`, year: d.getFullYear(), month: d.getMonth() });
+  }
+
+  // For each month, find what rank each stat was
+  function getRankAtMonth(statKey, year, month) {
+    const relevantEvents = state.rankHistory.filter(r=>{
+      if (r.stat!==statKey) return false;
+      const parts = r.date.split('. ');
+      if (parts.length<3) return false;
+      const ry = parseInt(parts[0]); const rm = parseInt(parts[1])-1;
+      return ry<year||(ry===year&&rm<=month);
+    });
+    if (relevantEvents.length===0) return 'E';
+    return relevantEvents[0].to;
+  }
+
+  const statKeys = ['stamina','strength','wealth'];
+  const colors = { stamina:'var(--green)', strength:'var(--red)', wealth:'var(--gold)' };
+  const maxRankIdx = 5;
+
+  el.innerHTML = `<div class="graph-wrap">
+    <div class="graph-title">[ 등급 변화 추이 ]</div>
+    <div class="graph-bars" id="graph-bars-inner"></div>
+    <div class="graph-legend">
+      ${statKeys.map(k=>`<div class="graph-legend-item"><div class="graph-legend-dot" style="background:${colors[k]}"></div>${STAT_CONFIG[k].name}</div>`).join('')}
+    </div>
+  </div>`;
+
+  const barsEl = el.querySelector('#graph-bars-inner');
+  months.forEach(m=>{
+    const wrap = document.createElement('div');
+    wrap.className = 'graph-bar-wrap';
+    wrap.style.position='relative';
+    const barsInner = document.createElement('div');
+    barsInner.style.cssText='display:flex;gap:2px;align-items:flex-end;height:80px;';
+    statKeys.forEach(k=>{
+      const rank = getRankAtMonth(k, m.year, m.month);
+      const rankIdx = RANKS.indexOf(rank);
+      const heightPct = Math.max(4, Math.round((rankIdx+1)/(maxRankIdx+1)*100));
+      const bar = document.createElement('div');
+      bar.className='graph-bar';
+      bar.style.cssText=`height:${heightPct}%;background:${colors[k]};opacity:0.7;width:8px;`;
+      barsInner.appendChild(bar);
+    });
+    const lbl = document.createElement('div');
+    lbl.className='graph-bar-label';
+    lbl.textContent=m.label;
+    wrap.appendChild(barsInner);
+    wrap.appendChild(lbl);
+    barsEl.appendChild(wrap);
+  });
+}
+
+// ===== HISTORY =====
+function renderHistory() {
+  const el = document.getElementById('history-list');
+  if (state.history.length===0) { el.innerHTML='<div class="empty-state">기록이 없습니다</div>'; return; }
+  el.innerHTML = state.history.map(h=>`
+    <div class="history-card">
+      <div class="history-dot" style="background:${h.color||'var(--accent)'}"></div>
+      <div class="history-info"><div class="history-title">${h.desc}</div><div class="history-date">${h.date}</div></div>
+      <div class="history-val">${h.stat}</div>
+    </div>`).join('');
+}
+
+// ===== MODALS =====
+function openQuestModal() { document.getElementById('quest-modal').classList.add('show'); }
+function openProjectModal() { document.getElementById('project-modal').classList.add('show'); }
+function openGoalModal() {
+  document.getElementById('goal-date-input').value = new Date().toISOString().split('T')[0];
+  document.getElementById('goal-modal').classList.add('show');
+}
+function openUpdateModal(statKey) {
+  if (statKey) document.getElementById('update-stat-input').value = statKey;
+  renderUpdateFields();
+  document.getElementById('update-modal').classList.add('show');
+}
+function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+
+function saveQuest() {
+  const title = document.getElementById('quest-title-input').value.trim();
+  const stat = document.getElementById('quest-stat-input').value;
+  const type = document.getElementById('quest-type-input').value;
+  const target = parseInt(document.getElementById('quest-target-input').value)||1;
+  if (!title) return;
+  state.quests.push({title,stat,type,target,progress:0});
+  saveState(); closeModal('quest-modal');
+  document.getElementById('quest-title-input').value='';
+  document.getElementById('quest-target-input').value='';
+  renderQuests();
+}
+
+function saveProject() {
+  const title = document.getElementById('proj-title-input').value.trim();
+  const desc = document.getElementById('proj-desc-input').value.trim();
+  if (!title) return;
+  state.projects.push({title,desc,status:'active',date:new Date().toLocaleDateString('ko-KR')});
+  saveState(); closeModal('project-modal');
+  document.getElementById('proj-title-input').value='';
+  document.getElementById('proj-desc-input').value='';
+  renderProjects();
+}
+
+function saveGoal() {
+  const title = document.getElementById('goal-title-input').value.trim();
+  const stat = document.getElementById('goal-stat-input').value;
+  const targetRank = document.getElementById('goal-rank-input').value;
+  const date = document.getElementById('goal-date-input').value;
+  if (!title||!date) return;
+  state.goals.push({title,stat,targetRank,date,createdAt:new Date().toLocaleDateString('ko-KR')});
+  saveState(); closeModal('goal-modal');
+  document.getElementById('goal-title-input').value='';
+  renderGoals();
+}
+
+function renderUpdateFields() {
+  const stat = document.getElementById('update-stat-input').value;
+  const el = document.getElementById('update-fields');
+  if (stat==='wealth') {
+    el.innerHTML=`<div class="input-group"><label class="input-label">현재 순자산 (만원)</label><input class="input-field" id="wealth-amount-input" type="number" placeholder="예: 5000" value="${state.stats.wealth.amount||0}" /></div>`;
+  } else {
+    el.innerHTML=`<div style="font-size:13px;color:var(--text2);padding:8px 0">스탯 상세 화면에서 조건을 직접 체크해주세요.</div>`;
+  }
+}
+
+function saveUpdate() {
+  const stat = document.getElementById('update-stat-input').value;
+  if (stat==='wealth') {
+    const amt = parseInt(document.getElementById('wealth-amount-input').value)||0;
+    state.stats.wealth.amount = amt;
+    const ranges = STAT_CONFIG.wealth.ranges;
+    RANKS.forEach(r=>{ if (amt>=ranges[r].min) state.stats.wealth.rank=r; });
+    addHistory('재력', `순자산 업데이트: ${amt.toLocaleString()}만원`, 'var(--gold)');
+    saveState(); closeModal('update-modal');
+    renderHome();
+    if (currentScreen==='stats') renderStatsDetail();
+  } else { closeModal('update-modal'); }
+}
+
+function saveName() {
+  const name = document.getElementById('name-input').value.trim();
+  if (!name) return;
+  state.hunterName = name;
+  saveState(); closeModal('name-modal'); renderHome();
+}
+
+// ===== AI QUESTS =====
+async function generateAIQuests() {
+  const loading = document.getElementById('ai-loading');
+  loading.style.display='flex';
+  const staminaXP = getStatXP('stamina');
+  const strengthXP = getStatXP('strength');
+  const prompt = `당신은 나 혼자만 레벨업 스타일의 인생 레벨업 시스템입니다.
+헌터 현황:
+- 체력: ${state.stats.stamina.rank}등급, 조건 달성 ${staminaXP.done}/${staminaXP.total}
+- 근력: ${state.stats.strength.rank}등급, 조건 달성 ${strengthXP.done}/${strengthXP.total}
+위 현황을 바탕으로 주간 퀘스트 2개, 월간 퀘스트 2개를 생성해주세요.
+훈련 퀘스트 방식으로, 다음 등급 달성을 위한 준비 과정 중심으로.
+주간은 운동 횟수 기반, 월간은 누적 km/개수 기반.
+반드시 JSON 배열만 응답: [{"title":"퀘스트명","stat":"stamina 또는 strength","type":"weekly 또는 monthly","target":숫자}]`;
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:500,messages:[{role:'user',content:prompt}]})});
+    const data = await resp.json();
+    const text = data.content.map(c=>c.text||'').join('');
+    const quests = JSON.parse(text.replace(/```json|```/g,'').trim());
+    quests.forEach(q=>state.quests.push({title:q.title,stat:q.stat,type:q.type,target:parseInt(q.target)||1,progress:0}));
+    saveState(); showToast('퀘스트 생성 완료!',`${quests.length}개의 퀘스트가 추가됐습니다`);
+  } catch(e) {
+    state.quests.push({title:'3km 달리기',stat:'stamina',type:'weekly',target:3,progress:0});
+    state.quests.push({title:'팔굽혀펴기 세트',stat:'strength',type:'weekly',target:3,progress:0});
+    state.quests.push({title:'이번 달 총 30km 달리기',stat:'stamina',type:'monthly',target:30,progress:0});
+    state.quests.push({title:'팔굽혀펴기 누적 300개',stat:'strength',type:'monthly',target:300,progress:0});
+    saveState();
+  }
+  loading.style.display='none'; renderQuests();
+}
+
+// ===== INIT =====
+loadState();
+checkAutoReset();
+if (!state.hunterName) {
+  document.getElementById('name-modal').classList.add('show');
+} else {
+  closeModal('name-modal');
+}
+renderHome();
+</script>
+</body>
+</html>
